@@ -1,0 +1,117 @@
+media:
+  - name: site_media
+    label: Site media
+    input: public
+    output: /
+    categories: [image]
+    rename: safe
+  - name: gallery_media
+    label: Gallery media
+    input: public/media
+    output: /media
+    categories: [image, video]
+    rename: safe
+
+content:
+  - name: site
+    label: Site settings
+    type: file
+    path: src/content/site/settings.md
+    format: yaml-frontmatter
+    fields:
+      - name: title
+        label: Site title
+        type: string
+        required: true
+      - name: subtitle
+        label: Subtitle
+        type: text
+      - name: heroTickerText
+        label: Hero ticker text
+        type: string
+      - name: heroImage
+        label: Hero image
+        type: image
+        options:
+          media: site_media
+          path: public
+      - name: vetrinaButtonLabel
+        label: Vetrina button label
+        type: string
+      - name: vetrinaPageLabel
+        label: Vetrina page label
+        type: string
+      - name: homeLinkLabel
+        label: Home link label
+        type: string
+      - name: galleryEmptyText
+        label: Empty gallery text
+        type: string
+      - name: homeFooter
+        label: Home footer
+        type: text
+      - name: vetrinaFooter
+        label: Vetrina footer
+        type: text
+      - name: navLinks
+        label: Navigation links
+        type: object
+        list: true
+        fields:
+          - name: label
+            label: Label
+            type: string
+            required: true
+          - name: url
+            label: URL
+            type: string
+          - name: color
+            label: Color
+            type: select
+            options:
+              values:
+                - name: amber
+                  label: Amber
+                - name: mint
+                  label: Mint
+                - name: violet
+                  label: Violet
+                - name: rose
+                  label: Rose
+                - name: sky
+                  label: Sky
+
+  - name: gallery
+    label: Gallery
+    type: collection
+    path: src/content/gallery
+    format: yaml-frontmatter
+    filename:
+      template: "{year}-{month}-{day}-{primary}.md"
+      field: create
+    view:
+      primary: title
+      fields: [title, pubDate, draft]
+      sort: pubDate
+      order: desc
+    fields:
+      - name: title
+        label: Title
+        type: string
+        required: true
+      - name: media
+        label: Media
+        type: file
+        options:
+          media: gallery_media
+          categories: [image, video]
+      - name: pubDate
+        label: Publish date
+        type: date
+        required: true
+        options:
+          time: true
+      - name: draft
+        label: Draft
+        type: boolean
+        default: true
