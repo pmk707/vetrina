@@ -1,0 +1,85 @@
+---
+const VIDEO_EXT = new Set(['mp4', 'webm', 'ogv', 'mov', 'm4v'])
+
+function isVideoUrl(src: string): boolean {
+  const base = src.split(/[?#]/)[0] ?? ''
+  const ext = base.includes('.') ? (base.split('.').pop() ?? '').toLowerCase() : ''
+  return VIDEO_EXT.has(ext)
+}
+
+interface Props {
+  title: string
+  mediaUrl: string | null
+}
+const { title, mediaUrl } = Astro.props
+const video = mediaUrl ? isVideoUrl(mediaUrl) : false
+---
+
+<article class="card">
+  {mediaUrl ? (
+    video ? (
+      <video src={mediaUrl} controls class="asset" aria-label={title} />
+    ) : (
+      <img src={mediaUrl} alt={title} class="asset" loading="lazy" />
+    )
+  ) : (
+    <div class="asset asset--placeholder" aria-hidden="true" />
+  )}
+  <div class="meta">
+    <div class="name">{title}</div>
+  </div>
+</article>
+
+<style>
+  .card {
+    width: 100%;
+    min-width: 0;
+    background: linear-gradient(168deg, rgba(34, 18, 2, 0.96), rgba(11, 5, 0, 0.9));
+    padding: 12px 12px 14px 12px;
+    border-radius: 22px;
+    border: 1px solid rgba(255, 219, 125, 0.28);
+    box-shadow:
+      0 16px 36px rgba(0, 0, 0, 0.58),
+      0 0 20px rgba(255, 184, 44, 0.12),
+      inset 0 1px 0 rgba(255, 247, 205, 0.16),
+      inset 0 0 24px rgba(255, 184, 44, 0.12);
+    transition: transform 0.24s ease, box-shadow 0.24s ease, border-color 0.24s ease;
+  }
+
+  .card:hover {
+    transform: translateY(-4px);
+    border-color: rgba(255, 232, 156, 0.58);
+    box-shadow:
+      0 24px 48px rgba(0, 0, 0, 0.68),
+      0 0 28px rgba(255, 190, 45, 0.22),
+      inset 0 1px 0 rgba(255, 247, 205, 0.22),
+      inset 0 0 30px rgba(255, 184, 44, 0.18);
+  }
+
+  .asset {
+    width: 100%;
+    border-radius: 14px;
+    display: block;
+    background: #120800;
+    box-shadow:
+      0 8px 22px rgba(0, 0, 0, 0.56),
+      0 0 0 1px rgba(255, 224, 126, 0.18);
+  }
+
+  .asset--placeholder {
+    aspect-ratio: 4/3;
+    opacity: 0.3;
+  }
+
+  .meta {
+    margin-top: 10px;
+  }
+
+  .name {
+    font-size: 13px;
+    letter-spacing: 0.4px;
+    color: #ffe7a5;
+    text-align: left;
+    line-height: 1.35;
+  }
+</style>
