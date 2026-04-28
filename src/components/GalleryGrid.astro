@@ -15,7 +15,7 @@ const { items, emptyText } = Astro.props
   ) : (
     <div class="feed">
       {items.map((item) => (
-        <GalleryItem title={item.title} mediaUrl={item.mediaUrl} />
+        <GalleryItem title={item.title} mediaUrl={item.mediaUrl} mp4Url={item.mp4Url} />
       ))}
     </div>
   )}
