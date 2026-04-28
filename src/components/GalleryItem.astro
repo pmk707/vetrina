@@ -10,15 +10,34 @@ function isVideoUrl(src: string): boolean {
 interface Props {
   title: string
   mediaUrl: string | null
+  mp4Url?: string | null
 }
-const { title, mediaUrl } = Astro.props
+const { title, mediaUrl, mp4Url = null } = Astro.props
 const video = mediaUrl ? isVideoUrl(mediaUrl) : false
+
+function videoMime(src: string): string {
+  const base = (src.split(/[?#]/)[0] ?? '').toLowerCase()
+  if (base.endsWith('.webm')) return 'video/webm'
+  if (base.endsWith('.mp4') || base.endsWith('.m4v')) return 'video/mp4'
+  if (base.endsWith('.mov')) return 'video/quicktime'
+  if (base.endsWith('.ogv')) return 'video/ogg'
+  return 'video/mp4'
+}
 ---
 
 <article class="card">
   {mediaUrl ? (
     video ? (
-      <video src={mediaUrl} controls class="asset" aria-label={title} />
+      <video
+        controls
+        playsinline
+        preload="metadata"
+        class="asset"
+        aria-label={title}
+      >
+        {mp4Url ? <source src={mp4Url} type="video/mp4" /> : null}
+        <source src={mediaUrl!} type={videoMime(mediaUrl!)} />
+      </video>
     ) : (
       <img src={mediaUrl} alt={title} class="asset" loading="lazy" />
     )
