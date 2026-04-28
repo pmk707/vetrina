@@ -30,6 +30,7 @@ const gallery = defineCollection({
   schema: z.object({
     title: z.string(),
     media: z.string().nullable().optional(),
+    mediaMp4: z.string().nullable().optional(),
     pubDate: z.coerce.date(),
     draft: z.boolean().default(false),
   }),
