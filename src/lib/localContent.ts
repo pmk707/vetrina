@@ -1,3 +1,5 @@
+import fs from 'node:fs';
+import path from 'node:path';
 import { getCollection, getEntry } from 'astro:content';
 import { withBaseUrl } from './withBaseUrl';
 
@@ -22,6 +24,7 @@ export interface SiteSettings {
 export interface GalleryItemData {
   title: string;
   mediaUrl: string | null;
+  mp4Url: string | null;
   pubDate: string;
 }
 
@@ -33,6 +36,15 @@ function cleanText(value: string | null | undefined): string | null {
 function localAssetPath(value: string | null | undefined): string | null {
   const path = cleanText(value);
   return path ? withBaseUrl(path) : null;
+}
+
+function mp4SiblingExists(mediaPath: string): string | null {
+  const trimmed = mediaPath.trim();
+  if (!/\.webm$/i.test(trimmed)) return null;
+  const mp4Rel = trimmed.replace(/\.webm$/i, '.mp4').replace(/^\//, '');
+  const abs = path.join(process.cwd(), 'public', mp4Rel);
+  if (!fs.existsSync(abs)) return null;
+  return withBaseUrl(`/${mp4Rel}`);
 }
 
 export async function getSiteSettings(): Promise<SiteSettings | null> {
@@ -63,9 +75,20 @@ export async function getGalleryItems(): Promise<GalleryItemData[]> {
 
   return items
     .sort((a, b) => b.data.pubDate.getTime() - a.data.pubDate.getTime())
-    .map((item) => ({
-      title: item.data.title,
-      mediaUrl: localAssetPath(item.data.media),
-      pubDate: item.data.pubDate.toISOString(),
-    }));
+    .map((item) => {
+      const mediaUrl = localAssetPath(item.data.media);
+      const explicitMp4 = localAssetPath(cleanText(item.data.mediaMp4) ?? undefined);
+      const rawMedia = cleanText(item.data.media);
+      const siblingMp4 =
+        explicitMp4 === null && cleanText(item.data.mediaMp4) == null && rawMedia
+          ? mp4SiblingExists(rawMedia)
+          : null;
+      const mp4Url = explicitMp4 ?? siblingMp4;
+      return {
+        title: item.data.title,
+        mediaUrl,
+        mp4Url,
+        pubDate: item.data.pubDate.toISOString(),
+      };
+    });
 }
