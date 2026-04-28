@@ -1,0 +1,170 @@
+---
+import GalleryItem from './GalleryItem.astro'
+import { GALLERY_CATEGORY_ORDER } from '../content/config'
+import type { GalleryItemData } from '../lib/localContent'
+import type { GalleryCategory } from '../lib/localContent'
+
+interface Props {
+  items: GalleryItemData[]
+  emptyText: string
+}
+const { items, emptyText } = Astro.props
+
+const present = new Set(items.map((i) => i.category))
+const filterCategories: GalleryCategory[] = GALLERY_CATEGORY_ORDER.filter((c) => present.has(c))
+---
+
+<div class="wrap">
+  {items.length === 0 ? (
+    <p class="empty">{emptyText}</p>
+  ) : (
+    <div class="gallery-root">
+      <div class="cat-toolbar" role="toolbar" aria-label="Filtra per categoria">
+        <button type="button" class="cat-btn cat-btn--on" data-cat="all" aria-pressed="true">
+          Tutte
+        </button>
+        {filterCategories.map((c) => (
+          <button type="button" class="cat-btn" data-cat={c} aria-pressed="false">
+            {c}
+          </button>
+        ))}
+      </div>
+      <p class="filter-empty" data-filter-empty hidden>
+        Nessun prodotto in questa categoria.
+      </p>
+      <div class="feed">
+        {items.map((item) => (
+          <GalleryItem
+            title={item.title}
+            category={item.category}
+            mediaUrl={item.mediaUrl}
+            mp4Url={item.mp4Url}
+            posterUrl={item.posterUrl}
+          />
+        ))}
+      </div>
+    </div>
+  )}
+</div>
+
+<script>
+  function initGalleryFilter(root: HTMLElement) {
+    const cards = root.querySelectorAll<HTMLElement>('.card')
+    const emptyMsg = root.querySelector<HTMLElement>('[data-filter-empty]')
+    const buttons = root.querySelectorAll<HTMLButtonElement>('.cat-btn')
+
+    function apply(filter: string, syncUrl: boolean) {
+      let n = 0
+      cards.forEach((card) => {
+        const cat = card.getAttribute('data-category')
+        const show = filter === 'all' || cat === filter
+        card.classList.toggle('card--hidden', !show)
+        if (show) n += 1
+      })
+      if (emptyMsg) emptyMsg.hidden = n > 0
+      buttons.forEach((btn) => {
+        const v = btn.getAttribute('data-cat') ?? 'all'
+        const on = v === filter
+        btn.classList.toggle('cat-btn--on', on)
+        btn.setAttribute('aria-pressed', on ? 'true' : 'false')
+      })
+      if (syncUrl && typeof history !== 'undefined' && history.replaceState) {
+        const url = new URL(window.location.href)
+        if (filter === 'all') {
+          url.searchParams.delete('cat')
+        } else {
+          url.searchParams.set('cat', filter)
+        }
+        history.replaceState(null, '', `${url.pathname}${url.search}${url.hash}`)
+      }
+    }
+
+    buttons.forEach((btn) => {
+      btn.addEventListener('click', () => apply(btn.getAttribute('data-cat') ?? 'all', true))
+    })
+
+    const fromUrl = new URLSearchParams(window.location.search).get('cat')
+    if (fromUrl) {
+      const ok = Array.from(buttons).some((b) => (b.getAttribute('data-cat') ?? '') === fromUrl)
+      if (ok) apply(fromUrl, false)
+    }
+  }
+
+  document.querySelectorAll<HTMLElement>('.gallery-root').forEach(initGalleryFilter)
+</script>
+
+<style>
+  .wrap {
+    max-width: min(1200px, calc(100% - 24px));
+    margin: 22px auto 0 auto;
+    padding: 0 16px;
+  }
+
+  .cat-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: center;
+    margin-bottom: 18px;
+  }
+
+  .cat-btn {
+    appearance: none;
+    cursor: pointer;
+    border-radius: 999px;
+    padding: 8px 14px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    font-family: inherit;
+    color: #e8d4a8;
+    background: rgba(20, 12, 2, 0.85);
+    border: 1px solid rgba(255, 206, 102, 0.28);
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
+    transition:
+      color 0.2s ease,
+      border-color 0.2s ease,
+      background 0.2s ease,
+      box-shadow 0.2s ease;
+  }
+
+  .cat-btn:hover {
+    border-color: rgba(255, 224, 140, 0.55);
+    color: #fff2cf;
+  }
+
+  .cat-btn--on {
+    color: #1a0f02;
+    background: linear-gradient(165deg, #ffd36a, #e8a31a);
+    border-color: rgba(255, 240, 180, 0.65);
+    box-shadow:
+      0 4px 18px rgba(0, 0, 0, 0.45),
+      0 0 20px rgba(255, 184, 60, 0.35);
+  }
+
+  .filter-empty {
+    text-align: center;
+    font-size: 13px;
+    color: #c9a85c;
+    margin: 0 0 16px 0;
+  }
+
+  .feed {
+    display: grid;
+    gap: 14px;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  @media (min-width: 720px) {
+    .feed {
+      gap: 18px;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    }
+  }
+
+  .empty {
+    padding: 32px 0;
+    font-size: 13px;
+    color: #d5b976;
+  }
+</style>

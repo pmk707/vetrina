@@ -1,0 +1,43 @@
+---
+import { withBaseUrl } from '../lib/withBaseUrl';
+
+interface Props {
+  title: string;
+  description?: string;
+  bodyClass?: string;
+}
+const { title, description = '', bodyClass = '' } = Astro.props;
+const faviconHref = withBaseUrl('/favicon.svg');
+---
+
+<!doctype html>
+<html lang="it">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content={description} />
+    <link rel="icon" type="image/svg+xml" href={faviconHref} />
+    <title>{title}</title>
+  </head>
+  <body class={bodyClass}>
+    <slot />
+  </body>
+</html>
+
+<style is:global>
+  *, *::before, *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  img, video {
+    display: block;
+    max-width: 100%;
+  }
+
+  a {
+    color: inherit;
+    text-decoration: none;
+  }
+</style>
