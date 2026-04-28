@@ -14,6 +14,7 @@ interface Props {
 }
 const { title, mediaUrl, mp4Url = null } = Astro.props
 const video = mediaUrl ? isVideoUrl(mediaUrl) : false
+const multiSource = Boolean(mp4Url)
 
 function videoMime(src: string): string {
   const base = (src.split(/[?#]/)[0] ?? '').toLowerCase()
@@ -31,12 +32,18 @@ function videoMime(src: string): string {
       <video
         controls
         playsinline
+        webkit-playsinline
         preload="metadata"
         class="asset"
         aria-label={title}
+        src={multiSource ? undefined : mediaUrl!}
       >
-        {mp4Url ? <source src={mp4Url} type="video/mp4" /> : null}
-        <source src={mediaUrl!} type={videoMime(mediaUrl!)} />
+        {multiSource ? (
+          <>
+            <source src={mp4Url!} type="video/mp4" />
+            <source src={mediaUrl!} type={videoMime(mediaUrl!)} />
+          </>
+        ) : null}
       </video>
     ) : (
       <img src={mediaUrl} alt={title} class="asset" loading="lazy" />
@@ -83,6 +90,12 @@ function videoMime(src: string): string {
     box-shadow:
       0 8px 22px rgba(0, 0, 0, 0.56),
       0 0 0 1px rgba(255, 224, 126, 0.18);
+  }
+
+  video.asset {
+    aspect-ratio: 16 / 9;
+    height: auto;
+    object-fit: contain;
   }
 
   .asset--placeholder {
