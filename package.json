@@ -3,7 +3,9 @@
   "type": "module",
   "version": "0.1.1",
   "scripts": {
-    "dev": "astro dev",
+    "posters": "node scripts/generate-video-posters.mjs",
+    "prebuild": "node scripts/generate-video-posters.mjs",
+    "dev": "node scripts/generate-video-posters.mjs && astro dev",
     "build": "astro build",
     "preview": "astro preview"
   },
