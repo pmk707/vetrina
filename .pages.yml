@@ -91,7 +91,7 @@ content:
       field: create
     view:
       primary: title
-      fields: [title, pubDate, draft]
+      fields: [title, category, pubDate, draft]
       sort: pubDate
       order: desc
     fields:
@@ -99,6 +99,28 @@ content:
         label: Title
         type: string
         required: true
+      - name: category
+        label: Category
+        type: select
+        required: true
+        options:
+          values:
+            - name: Hash dry sift
+              label: Hash dry sift
+            - name: Hash Frozen
+              label: Hash Frozen
+            - name: Hash Premium Frozen
+              label: Hash Premium Frozen
+            - name: Hash Static
+              label: Hash Static
+            - name: Hash Premium static
+              label: Hash Premium static
+            - name: Hash plasma Static
+              label: Hash plasma Static
+            - name: Weed direct Spain
+              label: Weed direct Spain
+            - name: Weed direct USA
+              label: Weed direct USA
       - name: media
         label: Media
         type: file
