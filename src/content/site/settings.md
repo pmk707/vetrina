@@ -2,7 +2,7 @@
 title: PMK707
 subtitle: -- Best Gold Quality --
 heroTickerText: VIKING
-heroImage: /d7cb8e72-8812-4128-8b9b-ce3cbbf0a194.png
+heroImage: /whatsapp-image-2026-04-28-at-004447.jpeg
 vetrinaButtonLabel: VETRINA
 vetrinaPageLabel: VETRINA
 homeLinkLabel: Home
